@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# kit-keybind — bind Super+\ to open the dossier (kit-guide), per desktop.
+# Super+\ — because a lone \ globally would break typing a backslash;
+# Super+\ is safe and doesn't conflict. All in userspace, no root needed.
+#
+# Supported: GNOME, KDE Plasma, Hyprland, XFCE. Otherwise — prints manual instructions.
+set -uo pipefail
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=/dev/null
+[ -f "$HERE/kit-lib.sh" ] && . "$HERE/kit-lib.sh" || { ok(){ echo "✓ $*"; }; warn(){ echo "! $*"; }; say(){ echo "$*"; }; }
+GUIDE="$(command -v kit-guide || echo "$HOME/.local/bin/kit-guide")"
+DE="${XDG_CURRENT_DESKTOP:-unknown}"
+
+manual() {
+  warn "don't know how to auto-bind on \"$DE\". Do it manually in your keyboard settings:"
+  say  "  key: Super + \\   →   command: $GUIDE"
+  say  "  (Hyprland: bind = SUPER, backslash, exec, $GUIDE)"
+}
+
+case "$DE" in
+  *GNOME*|*ubuntu*|*Unity*)
+    if command -v gsettings >/dev/null 2>&1; then
+      P="org.gnome.settings-daemon.plugins.media-keys"
+      C="custom-keybindings"
+      KP="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/kit-guide/"
+      cur="$(gsettings get $P $C 2>/dev/null)"
+      if [[ "$cur" == *kit-guide* ]]; then :
+      elif [[ "$cur" == *"[]"* || -z "$cur" ]]; then gsettings set $P $C "['$KP']"
+      else gsettings set $P $C "${cur%]*}, '$KP']"; fi
+      gsettings set "$P.custom-keybinding:$KP" name 'KIT guide'
+      gsettings set "$P.custom-keybinding:$KP" command "$GUIDE"
+      gsettings set "$P.custom-keybinding:$KP" binding '<Super>backslash'
+      ok "GNOME: Super+\\ → kit-guide bound"
+    else manual; fi ;;
+  *KDE*|*plasma*)
+    warn "KDE: auto-binding is fragile. Open: Settings → Shortcuts → Custom Shortcuts."
+    say  "  add the command $GUIDE on Meta+\\"
+    manual ;;
+  *Hyprland*)
+    CFG="$HOME/.config/hypr/hyprland.conf"
+    if [ -f "$CFG" ]; then
+      if grep -q 'kit-guide' "$CFG" 2>/dev/null; then ok "Hyprland: bind already present"
+      else printf '\n# kit-claude guide\nbind = SUPER, backslash, exec, %s\n' "$GUIDE" >>"$CFG"
+        ok "Hyprland: added bind SUPER+\\ → kit-guide (reload config: hyprctl reload)"; fi
+    else manual; fi ;;
+  *XFCE*)
+    if command -v xfconf-query >/dev/null 2>&1; then
+      xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Super>backslash' -n -t string -s "$GUIDE" 2>/dev/null \
+        && ok "XFCE: Super+\\ → kit-guide bound" || manual
+    else manual; fi ;;
+  *) manual ;;
+esac

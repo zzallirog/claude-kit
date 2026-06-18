@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codex of the Machine · KIT</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%230c0c11"/><text x="16" y="24" font-size="22" text-anchor="middle" fill="%23d8b46a" font-family="Georgia,serif" font-weight="bold">K</text></svg>'>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;600&display=swap&subset=cyrillic,latin" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0c0c11; --ink2:#13131a; --ink3:#191922;
+    --parch:#ece3d2; --parch-d:#cabfa9; --mut:#8d8676;
+    --gold:#d8b46a; --gold-d:#9c7f43; --gold-l:#f0d089;
+    --line:#2a261d;
+    --green:#86b98c; --amber:#d8b46a; --red:#cf8d80; --violet:#a99bd0;
+    --disp:"Playfair Display",Georgia,"Times New Roman",serif;
+    --serif:"Lora",Georgia,Palatino,"Palatino Linotype",serif;
+    --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:74px}
+  body{
+    margin:0;color:var(--parch);background:
+      radial-gradient(1200px 620px at 50% -8%, #1b160c2e, transparent 70%),
+      radial-gradient(900px 900px at 112% 16%, #14101a24, transparent 70%),
+      var(--ink);
+    font-family:var(--serif);font-size:17px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:#d8b46a33;color:#fff}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+  a{color:var(--gold);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+  a:hover{border-color:var(--gold-d)}
+
+  /* ───── frontispiece (more compact) ───── */
+  .front{text-align:center;padding:56px 0 30px}
+  .front .ribbon{font-family:var(--mono);font-size:11px;letter-spacing:.42em;
+    text-transform:uppercase;color:var(--gold-d)}
+  .front h1{font-family:var(--disp);font-weight:900;font-size:clamp(58px,12vw,108px);
+    line-height:.9;margin:.16em 0 .05em;color:var(--parch);text-shadow:0 2px 40px #d8b46a14}
+  .front h1 .dot{color:var(--gold)}
+  .front .latin{font-family:var(--disp);font-style:italic;font-weight:500;
+    font-size:clamp(17px,3vw,23px);color:var(--gold)}
+  .epigraph{max-width:48ch;margin:26px auto 0;font-style:italic;color:var(--parch-d);font-size:17px;line-height:1.6}
+  .epigraph cite{display:block;margin-top:8px;font-style:normal;font-family:var(--mono);
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut)}
+  .fleuron{text-align:center;color:var(--gold-d);font-size:18px;margin:4px 0;letter-spacing:.6em;user-select:none}
+
+  /* ───── navigation: golden concave buttons, spread to the edges ───── */
+  nav{position:sticky;top:0;z-index:9;background:#0b0b0fe9;backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:24px 0 0}
+  nav .wrap{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:11px 28px}
+  .navbtn{font-family:var(--mono);font-size:12px;letter-spacing:.03em;color:var(--gold);
+    padding:7px 13px;border-radius:9px;border:1px solid #3a3320;border-bottom-color:#241f12;
+    background:linear-gradient(180deg,#100f0a,#171510);
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.72), inset 0 -1px 0 rgba(216,180,106,.10),
+      0 1px 0 rgba(216,180,106,.04);
+    transition:.18s;white-space:nowrap;border-bottom-width:1px}
+  .navbtn:hover{color:var(--gold-l);border-color:var(--gold-d);
+    box-shadow:inset 0 2px 7px rgba(0,0,0,.85), inset 0 -1px 0 rgba(216,180,106,.26),
+      0 0 14px rgba(216,180,106,.13)}
+  .navbtn:active{box-shadow:inset 0 3px 8px rgba(0,0,0,.9)}
+  .navbtn .n{color:var(--gold-d);margin-right:5px}
+
+  /* ───── sections (tighter) ───── */
+  section{padding:46px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--gold-d);display:flex;align-items:center;gap:13px;margin:0 0 12px}
+  .kicker .num{color:var(--gold);font-weight:600}
+  .kicker::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(28px,4.4vw,40px);line-height:1.06;
+    margin:0 0 .35em;color:var(--parch)}
+  h2 em{font-style:italic;color:var(--gold)}
+  .lede{font-size:19px;color:var(--parch-d);margin:0 0 22px;max-width:62ch}
+  p{margin:0 0 .9em}
+
+  /* prose: text on the left, the aside tucked into the right corner */
+  .prose{position:relative}
+  .prose p{max-width:66ch}
+  .prose p:first-of-type::first-letter{font-family:var(--disp);font-weight:900;float:left;
+    font-size:4em;line-height:.76;padding:6px 12px 0 0;color:var(--gold)}
+  .prose strong{color:var(--parch);font-weight:600}
+  em.soft{color:var(--gold);font-style:italic}
+  code{font-family:var(--mono);font-size:.8em;background:#1b1a12;color:var(--gold);
+    border:1px solid #2c2718;border-radius:5px;padding:.1em .45em;white-space:nowrap}
+  .aside{font-family:var(--serif);font-style:italic;color:var(--mut);font-size:15px;
+    background:linear-gradient(180deg,#121119,#0f0e15);border:1px solid var(--line);
+    border-top:2px solid var(--gold-d);border-radius:10px;padding:14px 16px;
+    float:right;width:250px;margin:4px 0 14px 30px}
+  @media(max-width:760px){.aside{float:none;width:auto;margin:18px 0}}
+
+  /* ───── II roles: 3 cards in the corners ───── */
+  .cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .figure{background:linear-gradient(180deg,#13131b,#100f15);border:1px solid var(--line);
+    border-radius:14px;padding:20px;position:relative;overflow:hidden}
+  .figure::after{content:"";position:absolute;top:0;left:0;right:0;height:2px}
+  .figure.you::after{background:linear-gradient(90deg,var(--green),transparent)}
+  .figure.arch::after{background:linear-gradient(90deg,var(--violet),transparent)}
+  .figure.op::after{background:linear-gradient(90deg,var(--gold),transparent)}
+  .figure .gly{font-size:32px;line-height:1;margin-bottom:10px}
+  .figure h3{font-family:var(--disp);font-weight:700;font-size:23px;margin:0 0 2px}
+  .figure .role{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold-d);margin-bottom:9px}
+  .figure p{margin:0;color:var(--parch-d);font-size:15px;line-height:1.55}
+  .figure.you h3{color:var(--green)} .figure.arch h3{color:var(--violet)} .figure.op h3{color:var(--gold)}
+
+  /* ───── III two realms ───── */
+  .realms{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .realm{background:linear-gradient(180deg,#13131b,#100f15);border:1px solid var(--line);
+    border-radius:14px;padding:22px}
+  .realm.free{border-left:2px solid #2f4332} .realm.bound{border-left:2px solid #473029}
+  .realm .crown{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+  .realm.free .crown{color:var(--green)} .realm.bound .crown{color:var(--red)}
+  .realm h3{font-family:var(--disp);font-weight:700;font-size:24px;margin:5px 0 12px}
+  .realm ul{list-style:none;margin:0;padding:0;color:var(--parch-d);font-size:15px}
+  .realm li{padding:4px 0 4px 20px;position:relative}
+  .realm li::before{content:"›";position:absolute;left:0;color:var(--gold-d)}
+  .realm .seal{margin-top:13px;font-style:italic;color:var(--mut);font-size:14px}
+  @media(max-width:620px){.realms{grid-template-columns:1fr}}
+
+  /* ───── IV commands: blocks 2-per-row ───── */
+  .group-title{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-d);margin:26px 0 10px}
+  .entries{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:12px}
+  .entry{background:linear-gradient(180deg,#13131b,#100f15);border:1px solid var(--line);
+    border-radius:12px;transition:border-color .18s,transform .18s;align-self:start}
+  .entry:hover{border-color:#473b1f;transform:translateY(-1px)}
+  .entry[open]{border-color:var(--gold-d)}
+  .entry > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:11px;
+    padding:14px 15px;flex-wrap:wrap}
+  .entry > summary::-webkit-details-marker{display:none}
+  .entry .name{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--parch);white-space:nowrap}
+  .entry[open] .name{color:var(--gold)}
+  .entry .gloss{font-family:var(--serif);font-style:italic;color:var(--parch-d);font-size:14.5px;
+    flex:1;min-width:140px}
+  .entry .chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;padding:3px 8px;
+    border-radius:30px;border:1px solid;white-space:nowrap}
+  .chip.safe{color:var(--green);border-color:#2f4332}
+  .chip.root{color:var(--amber);border-color:#473b1f}
+  .chip.ai{color:var(--violet);border-color:#3a3450}
+  .copy{font-family:var(--mono);font-size:10px;color:var(--mut);background:transparent;
+    border:1px solid var(--line);border-radius:6px;padding:4px 9px;cursor:pointer;transition:.15s;white-space:nowrap}
+  .copy:hover{color:var(--gold);border-color:var(--gold-d)}
+  .copy.done{color:var(--green);border-color:#2f4332}
+  .entry .tale{padding:0 15px 16px;color:var(--parch-d);font-size:14.5px;line-height:1.6;
+    border-top:1px solid var(--line);margin-top:0;padding-top:12px}
+  .entry .tale b{color:var(--parch);font-weight:600}
+  .arrow{font-family:var(--mono);color:var(--gold-d);font-size:11px;transition:transform .2s;margin-left:auto}
+  .entry[open] .arrow{transform:rotate(90deg)}
+
+  /* ───── VI faculties: grid in the corners ───── */
+  .faculties{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .fac{background:linear-gradient(180deg,#13131b,#100f15);border:1px solid var(--line);
+    border-radius:11px;padding:15px 16px}
+  .fac .fn{font-family:var(--mono);color:var(--gold);font-size:14px}
+  .fac p{margin:4px 0 0;color:var(--parch-d);font-size:14.5px;line-height:1.55}
+
+  /* ───── VII key ───── */
+  .key{display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    background:linear-gradient(180deg,#13131b,#100f15);border:1px solid var(--line);
+    border-radius:14px;padding:20px 22px}
+  .keys{display:flex;gap:8px;align-items:center}
+  kbd{font-family:var(--mono);font-size:15px;background:#1a1812;color:var(--parch);
+    border:1px solid #3a3320;border-bottom-width:3px;border-radius:8px;padding:8px 14px}
+  .key p{margin:0;color:var(--parch-d);max-width:50ch;font-size:16px}
+
+  /* ───── VIII appendices ───── */
+  .appendix h3{font-family:var(--disp);font-weight:700;font-size:22px;color:var(--gold);margin:24px 0 6px}
+  .appendix h3 .ax{font-family:var(--mono);font-size:12px;color:var(--gold-d);letter-spacing:.1em;margin-right:9px}
+  .appendix p{color:var(--parch-d);font-size:16px;max-width:74ch}
+  .ab-pair{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:680px){.ab-pair{grid-template-columns:1fr}}
+  .scene{font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--parch-d);
+    background:var(--ink2);border:1px solid var(--line);border-left:3px solid var(--gold-d);
+    border-radius:10px;padding:16px 18px;margin:16px 0;white-space:pre-wrap;overflow-x:auto}
+  .scene .g{color:var(--gold)} .scene .gr{color:var(--green)} .scene .m{color:var(--mut)}
+
+  footer{padding:40px 0 70px;text-align:center;color:var(--mut)}
+  footer .sig{font-family:var(--disp);font-style:italic;font-size:19px;color:var(--gold);margin-bottom:9px}
+  footer .meta{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(24px);
+    background:#15140d;border:1px solid var(--gold-d);color:var(--gold);font-family:var(--mono);
+    font-size:13px;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.3s;z-index:20}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="front wrap">
+  <div class="ribbon">Codex Machinae · the codex of the machine</div>
+  <h1>KIT<span class="dot">.</span></h1>
+  <div class="latin">de machina &amp; custode — of the machine and its keeper</div>
+  <div class="epigraph">
+    "A tool knows neither good nor evil. The hand that holds it knows —
+    and so everything in this guide is about whose hand it is."
+    <cite>— from the introduction</cite>
+  </div>
+</div>
+<div class="fleuron">✦ ✦ ✦</div>
+
+<nav><div class="wrap">
+  <a class="navbtn" href="#name"><span class="n">I</span>what this is</a>
+  <a class="navbtn" href="#cast"><span class="n">II</span>the cast</a>
+  <a class="navbtn" href="#realms"><span class="n">III</span>two realms</a>
+  <a class="navbtn" href="#rites"><span class="n">IV</span>commands</a>
+  <a class="navbtn" href="#method"><span class="n">V</span>the order</a>
+  <a class="navbtn" href="#faculties"><span class="n">VI</span>faculties</a>
+  <a class="navbtn" href="#key"><span class="n">VII</span>the key</a>
+  <a class="navbtn" href="#appendix"><span class="n">VIII</span>appendices</a>
+</div></nav>
+
+<main class="wrap">
+
+  <!-- I -->
+  <section id="name" class="prose">
+    <div class="kicker"><span class="num">I</span> · Nomen — what this is</div>
+    <h2>The machine and the one who <em>rules it</em></h2>
+    <aside class="aside">man — the oldest of guides; people have read it for half a century. This is
+      an attempt at the same clarity, but in a human voice.</aside>
+    <p>There is a laptop, and there is the person it belongs to. Between them stands
+      a third — an assistant that can read the system, fix it, and advise. This
+      guide describes not buttons but <strong>order</strong>: who may do what,
+      where the assistant is free to act on its own, and where it must stop and ask.</p>
+    <p>It is written the way charters and old manuals are written: by section, from
+      the general to the particular. You need not read it in order — it is enough to
+      return to the chapter you need when you need it. The command <code>kit-guide</code>
+      opens this page at any moment; the key <code>Super + \</code> is even
+      faster.</p>
+  </section>
+
+  <!-- II -->
+  <section id="cast">
+    <div class="kicker"><span class="num">II</span> · Personae — the cast</div>
+    <h2>There are <em>three</em> of them</h2>
+    <p class="lede">Each has his own measure of power and his own measure of responsibility.
+      That is the whole design; the rest are consequences.</p>
+    <div class="cast">
+      <div class="figure you"><div class="gly">🜔</div>
+        <div class="role">owner · the last word</div><h3>The Owner</h3>
+        <p>The one to whom the machine belongs. He holds the password and the right
+           of the deciding "yes." The assistants do not enter the system on their own:
+           only he carries the key. The request for a password is the human's
+           signature under a deed.</p></div>
+      <div class="figure arch"><div class="gly">🜍</div>
+        <div class="role">architect · thinks</div><h3>Opus</h3>
+        <p>The senior mind. It plans the setup, holds the map — what lies where and
+           what is fixed by what — advises and explains. This is the command post,
+           not the hands.</p></div>
+      <div class="figure op"><div class="gly">🜎</div>
+        <div class="role">operative · acts</div><h3>Sonnet</h3>
+        <p>Quick and light, it carries the routine. But it is let near the heart of
+           the system more strictly: every dangerous step is a separate, one-time
+           grant. The faster the runner, the shorter the leash.</p></div>
+    </div>
+  </section>
+
+  <!-- III -->
+  <section id="realms">
+    <div class="kicker"><span class="num">III</span> · Regna — two realms</div>
+    <h2>Where it is <em>free</em>, and where — under guard</h2>
+    <p class="lede">The border is simple to the point of severity: either it is plainly
+      permitted, or the owner is plainly needed. There is no grey zone between them.</p>
+    <div class="realms">
+      <div class="realm free"><div class="crown">● home · ~/</div><h3>The Free</h3>
+        <ul><li>read and write in your own folders</li><li>projects, notes, search</li>
+            <li>observe, measure, diagnose</li></ul>
+        <div class="seal">Here the assistant moves without bowing — this is your home.</div></div>
+      <div class="realm bound"><div class="crown">● system · root</div><h3>Under Guard</h3>
+        <ul><li>updates and package installs</li><li>firewall, ports, services</li>
+            <li>drivers, time, network</li></ul>
+        <div class="seal">Here — only by rite: request → your grant → your password → stand down.</div></div>
+    </div>
+  </section>
+
+  <!-- IV -->
+  <section id="rites">
+    <div class="kicker"><span class="num">IV</span> · Ritus — commands</div>
+    <h2>Words that <em>change something</em></h2>
+    <p class="lede">Each entry opens at a touch. The button drops the word into the
+      clipboard — all that remains is to utter it in the terminal.</p>
+
+    <div class="group-title">— power over the system —</div>
+    <div class="entries">
+      <details class="entry"><summary>
+        <span class="name">update</span>
+        <span class="gloss">update the world and inspect the walls — in one word</span>
+        <span class="chip root">root</span>
+        <button class="copy" data-cmd="update">copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">Synchronizes and installs updates with the native package
+          manager — <code>pacman</code>, <code>apt</code> or <code>dnf</code>,
+          whichever is found. Then it makes its rounds: is the firewall lit, have
+          any services fallen, is a reboot due, which ports face outward.
+          System actions always ask first. <code>update --dry-run</code> — walk the
+          path in words, touching nothing.</div></details>
+      <details class="entry"><summary>
+        <span class="name">fix</span>
+        <span class="gloss">healer: disk, names, network, packages, services</span>
+        <span class="chip root">root</span>
+        <button class="copy" data-cmd="fix">copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">It works through a list of common ailments. The safe it cures
+          on its own, the risky — only after asking. Whatever it cannot overcome it
+          <b>records</b>, to later get at the root and add to the book of maladies.
+          <code>fix --auto</code> — in one pass; <code>fix --dry-run</code> — only
+          show.</div></details>
+    </div>
+
+    <div class="group-title">— memory and the way —</div>
+    <div class="entries">
+      <details class="entry"><summary>
+        <span class="name">where</span>
+        <span class="gloss">the map: what lies where on this land</span>
+        <span class="chip safe">safe</span>
+        <button class="copy" data-cmd="where">copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">Unfolds the owner's map: where the projects are, where the
+          notes, where the logs, which words are available. It lives in
+          <code>~/.config/kit-claude/layout.md</code> — rewrite it freely.</div></details>
+      <details class="entry"><summary>
+        <span class="name">recall "…"</span>
+        <span class="gloss">recall: across notes and the system's chronicle at once</span>
+        <span class="chip safe">safe</span>
+        <button class="copy" data-cmd='recall "how I fixed wifi"'>copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">A single door into "what I know" and "what happened": it
+          searches the knowledge base <code>~/kb</code> and the system journal.
+          <code>recall --notes</code> — notes only, <code>recall --logs</code> —
+          the chronicle only.</div></details>
+    </div>
+
+    <div class="group-title">— help and light —</div>
+    <div class="entries">
+      <details class="entry"><summary>
+        <span class="name">kit-help</span>
+        <span class="gloss">a short scroll in the terminal (also shown on login)</span>
+        <span class="chip safe">safe</span>
+        <button class="copy" data-cmd="kit-help">copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">A short list of words right in the window; it also greets you on
+          opening (via <code>fastfetch</code>), so you need keep nothing in your
+          head.</div></details>
+      <details class="entry"><summary>
+        <span class="name">kit-guide</span>
+        <span class="gloss">open this codex in the browser</span>
+        <span class="chip safe">safe</span>
+        <button class="copy" data-cmd="kit-guide">copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">Opens the page you are reading. Bound to
+          <code>Super + \</code> — see chapter VII.</div></details>
+      <details class="entry"><summary>
+        <span class="name">claude</span>
+        <span class="gloss">call upon the assistant — in your own language</span>
+        <span class="chip ai">AI</span>
+        <button class="copy" data-cmd="claude">copy</button><span class="arrow">▸</span></summary>
+        <div class="tale">Summons the assistant in the current folder. If it is unclear
+          what a command does or how to set it up — ask in words.</div></details>
+    </div>
+  </section>
+
+  <!-- V -->
+  <section id="method" class="prose">
+    <div class="kicker"><span class="num">V</span> · Mos — the order</div>
+    <h2>Order on the outside — <em>freedom within</em></h2>
+    <aside class="aside">"Disk is cheap, the head is dear" — and so here things are
+      kept with a margin, not cut to the bone.</aside>
+    <p>The idea of the order is simple: push the structure outward — into folders,
+      notes, the map — so the head stays free for thought. <em class="soft">Do not
+      optimize prematurely. Do not deduplicate. Leave traces.</em></p>
+    <p><strong>Projects</strong> live in separate courtyards — <code>~/projects/name/</code>,
+      each on its own. Need one file in two places — let it lie as a copy in
+      both. Two honest copies beat one clever link you will forget about.</p>
+    <p><strong>The knowledge base</strong> — <code>~/kb/</code>, plain notes. Append
+      the new at the bottom, with a date; do not erase the old. To search — the word
+      <code>recall</code>. The default shell installed is <code>fish</code>: it
+      suggests and completes for you.</p>
+  </section>
+
+  <!-- VI -->
+  <section id="faculties">
+    <div class="kicker"><span class="num">VI</span> · Artes — faculties</div>
+    <h2>What the assistant <em>does especially well</em></h2>
+    <p class="lede">These skills awaken on their own for a task — or by name,
+      through <code>/name</code>.</p>
+    <div class="faculties">
+      <div class="fac"><span class="fn">/stats-lab</span>
+        <p>Statistics for the psychologist: which test, assumption checks, effect
+          size, APA formatting.</p></div>
+      <div class="fac"><span class="fn">/data-wrangle</span>
+        <p>From a raw file to usable data: import CSV, Excel, SPSS; cleaning,
+          missing values, recoding.</p></div>
+      <div class="fac"><span class="fn">/research-helper</span>
+        <p>Sources, a paper summary, hypotheses, the structure of the work, APA references.</p></div>
+      <div class="fac"><span class="fn">/linux-tutor</span>
+        <p>Linux for the newcomer: it explains a command before you run it, for your
+          distro, with no fear of breaking things.</p></div>
+      <div class="fac"><span class="fn">/system-tune</span>
+        <p>Inspection and gentle speed-up for your hardware. It looks first; it
+          changes — only with consent.</p></div>
+      <div class="fac"><span class="fn">/man</span>
+        <p>It parses old man pages: the flags you need and the ones you did not
+          know about.</p></div>
+    </div>
+  </section>
+
+  <!-- VII -->
+  <section id="key">
+    <div class="kicker"><span class="num">VII</span> · Clavis — the key</div>
+    <h2>One press — <em>and the codex opens</em></h2>
+    <div class="key">
+      <div class="keys"><kbd>Super</kbd><span style="color:var(--gold)">+</span><kbd>\</kbd></div>
+      <p>that very key above Enter. A lone <code>\</code> would meddle with typing
+        everywhere, so <code>Super + \</code> was chosen as the key — it conflicts with
+        nothing. Configured for your desktop at the install step.</p>
+    </div>
+  </section>
+
+  <!-- VIII -->
+  <section id="appendix" class="appendix">
+    <div class="kicker"><span class="num">VIII</span> · Appendices — appendices</div>
+    <h2>The full <em>charters</em></h2>
+    <p class="lede">What the chapters say briefly is here in full. These same texts
+      sit on disk alongside the kit.</p>
+
+    <h3 id="protocol"><span class="ax">App. A</span>The Charter of the Grant</h3>
+    <p>The root of power belongs to the human. On a newcomer's machine the cost of a
+      mistake is high, and so root is never "poured out" across the scripts. The only
+      door into the system is the rite, and it is always passed in four beats:</p>
+    <div class="scene"><span class="g">┌─ GRANT REQUEST ─ root ────────────────────────────</span>
+<span class="g">│</span> requested by : AI operative
+<span class="g">│</span> deed         : close the stray port 5355
+<span class="g">│</span> incantation  : <span class="g">sudo ufw deny 5355</span>
+<span class="g">│</span> risk         : 🟡 medium
+<span class="g">│ ONLY the owner may permit. The assistant will not enter alone.</span>
+<span class="g">└───────────────────────────────────────────────────</span>
+  Owner, grant access? [y/N]: y
+  <span class="gr">● grant given.</span> the system asks for your password — this is the signature:
+  <span class="m">[password entry — here the human decides]</span>
+  <span class="gr">✓ CONFIRMED</span> — done. temporary root revoked. <span class="g">stand down.</span></div>
+    <p>"Temporary root" is literal: the assistant <strong>borrows</strong> it for one
+      deed and returns it at once. Permanent power over the system it never has.
+      The password is yours and yours alone; it is the very proof that the human
+      decided.</p>
+
+    <div class="ab-pair">
+      <div>
+        <h3 id="conv"><span class="ax">App. B</span>The Way of Work</h3>
+        <p>Side projects — in courtyards (<code>~/projects/name/</code>), no clutter
+          and no deduplication. Knowledge base — <code>~/kb/</code>, append at the
+          bottom with a date, keep the old. Map — <code>where</code>, search —
+          <code>recall</code>, shell — <code>fish</code>. The spirit is simple: keep
+          your traces, do not cut to the bone, trust your future self.</p>
+      </div>
+      <div>
+        <h3 id="root"><span class="ax">App. C</span>Of Root and the Guard</h3>
+        <p>What the kit does <strong>not</strong> do: it does not disable the
+          <code>sudo</code> password, does not hand out passwordless root, does not
+          edit <code>/etc/sudoers</code>, does not open ports on its own. Freedom is in
+          the home (<code>~/</code>); the guard is at the threshold of the system:
+          writing to <code>/etc</code>, <code>/usr</code>, <code>/boot</code> and
+          anything destructive are sealed shut.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="sig">You decide · Opus thinks · Sonnet acts · the key is yours.</div>
+    <div class="meta">// case no.001 · codex of the machine · fin</div>
+  </footer>
+</main>
+
+<div class="toast" id="toast">copied</div>
+<script>
+  // copying
+  const toast=document.getElementById('toast');let t;
+  document.querySelectorAll('.copy').forEach(b=>{
+    b.addEventListener('click',e=>{
+      e.preventDefault();e.stopPropagation();
+      const cmd=b.dataset.cmd;
+      const done=()=>{b.textContent='✓ taken';b.classList.add('done');
+        toast.textContent='copied: '+cmd;toast.classList.add('show');
+        clearTimeout(t);t=setTimeout(()=>{b.textContent='copy';b.classList.remove('done');
+          toast.classList.remove('show');},1700);};
+      if(navigator.clipboard){navigator.clipboard.writeText(cmd).then(done).catch(()=>b.textContent='⌘C');}
+      else{const ta=document.createElement('textarea');ta.value=cmd;document.body.appendChild(ta);
+        ta.select();try{document.execCommand('copy');done();}catch(_){}finally{ta.remove();}}
+    });
+  });
+  // smooth scroll on navigation (~780ms, eased) — 15% silkier than abrupt
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const easeInOut=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+  function glide(toY,dur){const s=scrollY,d=toY-s,t0=performance.now();
+    function step(now){const p=Math.min(1,(now-t0)/dur);scrollTo(0,s+d*easeInOut(p));
+      if(p<1)requestAnimationFrame(step);}requestAnimationFrame(step);}
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const el=document.querySelector(a.getAttribute('href'));if(!el)return;
+      e.preventDefault();
+      const y=el.getBoundingClientRect().top+scrollY-72;
+      if(reduce){scrollTo(0,y);}else{glide(y,780);}
+      history.replaceState(null,'',a.getAttribute('href'));
+    });
+  });
+</script>
+</body>
+</html>

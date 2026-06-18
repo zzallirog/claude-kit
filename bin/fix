@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# fix — diagnose and safely repair the system.
+#   checks: disk, clock, DNS, Wi-Fi/network, package integrity, services, orphans.
+#   fixes safe things automatically; risky ones only after confirmation.
+#   what could not be fixed → written to the database for root-cause analysis (auto-learning).
+#
+# Usage:
+#   fix            interactive (asks on risky actions)
+#   fix --auto     autonomous: auto-yes on GREEN, still asks on yellow/red
+#   fix --yes      auto-yes on EVERYTHING (for experts; be careful)
+#   fix --dry-run  show only, do nothing
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+KIT_ROOT="$(dirname "$HERE")"
+# shellcheck source=/dev/null
+. "$HERE/kit-lib.sh"
+# shellcheck source=/dev/null
+. "$KIT_ROOT/kb/known-issues.sh"
+
+for a in "$@"; do case "$a" in
+  --auto) KIT_AUTO=1;;
+  --yes|-y) KIT_YES=1;;
+  --dry-run|-n) KIT_DRYRUN=1;;
+  -h|--help) sed -n '2,12p' "$0"; exit 0;;
+esac; done
+
+detect_distro
+say "${C_BOLD}fix — system health check${C_0}  (${DISTRO_NAME}, pm=${PM:-?})"
+[ "$KIT_AUTO" = 1 ] && say "mode: autonomous (I fix green myself, I'll ask on risky)"
+logln "fix start auto=$KIT_AUTO yes=$KIT_YES dry=$KIT_DRYRUN"
+
+problems=0
+for chk in "${KIT_CHECKS[@]}"; do
+  if ! "$chk"; then problems=$((problems+1)); fi
+done
+
+section "Summary"
+if [ "$problems" -eq 0 ]; then
+  ok "all good — no problems found"
+else
+  warn "$problems item(s) need attention"
+  [ -s "$KIT_UNFIXED" ] && say "  unresolved: $KIT_UNFIXED (ask Claude to find the root cause)"
+fi
+logln "fix done problems=$problems"

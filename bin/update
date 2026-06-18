@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# update — system update + a quick security check in ONE script.
+#   1) updates packages with the native manager (root, with confirmation)
+#   2) security review: firewall, failed services, whether a reboot is needed,
+#      open ports, updates — read-only, no changes.
+#
+# Usage:
+#   update            interactive
+#   update --auto     auto-yes on the update (green)
+#   update --dry-run  show only
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+# shellcheck source=/dev/null
+. "$HERE/kit-lib.sh"
+
+for a in "$@"; do case "$a" in
+  --auto) KIT_AUTO=1;;
+  --yes|-y) KIT_YES=1;;
+  --dry-run|-n) KIT_DRYRUN=1;;
+  -h|--help) sed -n '2,9p' "$0"; exit 0;;
+esac; done
+
+detect_distro
+[ -z "$PM" ] && { err "package manager not recognized"; exit 1; }
+say "${C_BOLD}update — update + security check${C_0}  (${DISTRO_NAME})"
+logln "update start pm=$PM auto=$KIT_AUTO"
+
+# ---------- 1. UPDATE ----------
+section "Updating packages"
+# shellcheck disable=SC2086
+run_root "sync package lists" green $PM_SYNC || true
+# shellcheck disable=SC2086
+run_root "install updates" green $PM_UPGRADE || warn "update interrupted/skipped"
+
+# ---------- 2. SECURITY CHECK (read-only) ----------
+section "Security check"
+
+# firewall
+fw="no active firewall"
+if have ufw && ufw status 2>/dev/null | grep -qi 'Status: active'; then fw="ufw active"
+elif have firewall-cmd && firewall-cmd --state 2>/dev/null | grep -qi running; then fw="firewalld active"
+elif have nft && [ -n "$(sudo nft list ruleset 2>/dev/null)" ]; then fw="nftables rules present"
+fi
+case "$fw" in no*) warn "$fw — for a laptop/PC on public networks it's worth enabling one (ask Claude/linux-tutor)";; *) ok "$fw";; esac
+
+# failed services
+if have systemctl; then
+  failed="$(systemctl --failed --no-legend --plain 2>/dev/null | awk '{print $1}')"
+  if [ -n "$failed" ]; then warn "failed services:"; printf '%s\n' "$failed" | sed 's/^/    /'
+  else ok "no failed services"; fi
+fi
+
+# is a reboot needed (kernel updated?)
+if have needs-restarting && needs-restarting -r >/dev/null 2>&1; then ok "no reboot required"
+elif [ -f /var/run/reboot-required ]; then warn "reboot required (key components updated)"
+elif have pacman; then
+  inst_kver="$(pacman -Q linux 2>/dev/null | awk '{print $2}' | sed 's/\..*//')"
+  [ -n "$inst_kver" ] && say "  running kernel: $(uname -r) — if it was updated, a reboot will help"
+fi
+
+# listening ports (what's exposed outward)
+if have ss; then
+  say "  listening ports (what accepts connections):"
+  ss -tulnH 2>/dev/null | awk '{print $1, $5}' | sort -u | head -12 | sed 's/^/    /'
+  say "    (if you see an unfamiliar port on 0.0.0.0 — ask Claude whether it's needed)"
+fi
+
+# security updates (Debian/Ubuntu)
+if have apt; then
+  sec="$(apt-get -s upgrade 2>/dev/null | grep -ci security || true)"
+  [ "${sec:-0}" -gt 0 ] && warn "$sec updates marked as security" || ok "no security updates queued"
+fi
+
+section "Done"
+ok "system updated, basic security check passed"
+say "  to dig deeper into any ${C_Y}!${C_0} — ask Claude (skill system-tune / linux-tutor)"
+logln "update done"

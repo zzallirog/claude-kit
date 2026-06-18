@@ -1,0 +1,43 @@
+{
+  "_comment": "Two spheres (THE-PROTOCOL.md). USERSPACE: full freedom — the AI reads/writes in the home directory without ceremony. SYSTEM: gated — sudo always asks, writing to system paths and anything destructive is forbidden (only via the temporary root handshake run_root). The middle ground was removed: either it's explicitly allowed, or the owner is explicitly required.",
+
+  "permissions": {
+    "allow": [
+      "Read(*)",
+      "Edit(*)",
+      "Write(*)",
+      "Bash(kit-help)", "Bash(where)", "Bash(recall *)",
+      "Bash(fix --dry-run)", "Bash(update --dry-run)", "Bash(bash probe-system.sh)",
+      "Bash(man *)", "Bash(* --help)", "Bash(* -h)",
+      "Bash(command -v *)", "Bash(which *)", "Bash(type *)",
+      "Bash(ls *)", "Bash(cat *)", "Bash(less *)", "Bash(head *)", "Bash(tail *)",
+      "Bash(grep *)", "Bash(rg *)", "Bash(find ~ *)", "Bash(fd *)",
+      "Bash(cd *)", "Bash(pwd)", "Bash(echo *)", "Bash(mkdir ~/*)", "Bash(cp ~/*)", "Bash(mv ~/*)",
+      "Bash(df *)", "Bash(free *)", "Bash(lsblk *)", "Bash(lscpu)", "Bash(uname *)", "Bash(uptime)",
+      "Bash(systemctl status *)", "Bash(systemctl --failed*)", "Bash(journalctl *)",
+      "Bash(ss *)", "Bash(ip a)", "Bash(ip addr *)", "Bash(ping *)",
+      "Bash(nmcli general status)", "Bash(nmcli device *)", "Bash(nmcli -t *)",
+      "Bash(rfkill list)", "Bash(timedatectl status)", "Bash(timedatectl show*)",
+      "Bash(sensors)", "Bash(nvidia-smi *)", "Bash(lspci *)", "Bash(lsmod)",
+      "Bash(git *)", "Bash(python3 *)", "Bash(pip *)", "Bash(Rscript *)",
+      "Bash(pacman -Q*)", "Bash(pacman -Ss *)", "Bash(apt list *)", "Bash(apt-cache *)", "Bash(dnf list *)"
+    ],
+
+    "ask": [
+      "Bash(sudo *)",
+      "Bash(chsh *)",
+      "Bash(systemctl enable *)", "Bash(systemctl disable *)",
+      "Bash(systemctl start *)", "Bash(systemctl stop *)", "Bash(systemctl restart *)"
+    ],
+
+    "deny": [
+      "Write(/etc/**)", "Edit(/etc/**)", "Write(/usr/**)", "Edit(/usr/**)",
+      "Write(/boot/**)", "Edit(/boot/**)", "Write(/bin/**)", "Write(/sbin/**)",
+      "Write(/sys/**)", "Write(/proc/**)", "Write(/dev/**)",
+      "Bash(sudo rm *)", "Bash(rm -rf /*)", "Bash(rm -rf ~)", "Bash(rm -rf ~/*)",
+      "Bash(:(){*)", "Bash(mkfs*)", "Bash(dd *)",
+      "Bash(* --no-preserve-root*)", "Bash(chmod -R 777 /*)",
+      "Bash(curl * | sh)", "Bash(curl * | bash)", "Bash(wget * | sh)", "Bash(wget * | bash)"
+    ]
+  }
+}

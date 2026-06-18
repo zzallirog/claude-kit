@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# where — laptop map: what lives where. Prints ~/.config/kit-claude/layout.md.
+# This is "what's where" in one command (see CONVENTIONS.md §4).
+LAYOUT="${XDG_CONFIG_HOME:-$HOME/.config}/kit-claude/layout.md"
+if [ ! -f "$LAYOUT" ]; then
+  echo "The map isn't set up yet."
+  echo "Ask Claude: \"build the laptop map (where) for my structure\""
+  echo "or copy the example: cp config/layout.example.md \"$LAYOUT\""
+  exit 0
+fi
+# No pagers (a beginner gets stuck on "how do I quit"). bat with paging=never,
+# or glow through a pipe (defeats the tty pager), or just cat.
+if command -v bat >/dev/null 2>&1;        then bat --style=plain --paging=never "$LAYOUT"
+elif command -v glow >/dev/null 2>&1;     then glow "$LAYOUT" | cat
+else cat "$LAYOUT"; fi

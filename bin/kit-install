@@ -1,0 +1,190 @@
+#!/usr/bin/env bash
+# kit-install — install the kit's commands into the system. Idempotent, with backups,
+# never silently overwrites anyone else's files. Runs WITHOUT root (installs to ~/.local).
+#
+#   kit-install            install bin + fastfetch config + allowlist (will ask)
+#   kit-install --uninstall remove what the kit installed
+set -uo pipefail
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+KIT_ROOT="$(dirname "$HERE")"
+# shellcheck source=/dev/null
+. "$HERE/kit-lib.sh"
+
+BINDIR="$HOME/.local/bin"
+TS="$(date '+%Y%m%d-%H%M%S')"
+MARK_BEGIN="# >>> kit-claude >>>"
+MARK_END="# <<< kit-claude <<<"
+
+backup() { [ -e "$1" ] && cp -a "$1" "$1.bak-$TS" && warn "backup: $1.bak-$TS"; }
+
+uninstall() {
+  section "Uninstalling the kit"
+  for c in update fix kit-help kit-install kit-lib.sh; do
+    [ -L "$BINDIR/$c" ] && { rm -f "$BINDIR/$c"; ok "removed $BINDIR/$c"; }
+  done
+  for rc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.config/fish/config.fish"; do
+    [ -f "$rc" ] || continue
+    if grep -q "$MARK_BEGIN" "$rc" 2>/dev/null; then
+      backup "$rc"
+      sed -i "/$MARK_BEGIN/,/$MARK_END/d" "$rc" && ok "cleaned $rc"
+    fi
+  done
+  say "fastfetch config and Claude settings left in place (backups nearby if you need to restore)."
+  exit 0
+}
+[ "${1:-}" = "--uninstall" ] && uninstall
+
+detect_distro
+section "Installing the kit's commands"
+mkdir -p "$BINDIR"
+
+# 1) bin -> ~/.local/bin (symlinks to the sources in the kit)
+for c in update fix where recall kit-guide kit-keybind kit-help kit-install; do
+  src="$HERE/$c"
+  dst="$BINDIR/$c"
+  if [ -e "$dst" ] && [ ! -L "$dst" ]; then
+    warn "$dst already exists and it is NOT our file — skipping so as not to overwrite"
+    continue
+  fi
+  ln -sf "$src" "$dst"
+  ok "$c → $dst"
+done
+ln -sf "$HERE/kit-lib.sh" "$BINDIR/kit-lib.sh"  # library alongside
+chmod +x "$HERE"/update "$HERE"/fix "$HERE"/where "$HERE"/recall "$HERE"/kit-guide "$HERE"/kit-keybind "$HERE"/kit-help "$HERE"/kit-install 2>/dev/null || true
+
+# 2) PATH + fastfetch at startup — into the shell config (with markers, reversible)
+detect_rc() {
+  case "$(basename "${SHELL:-bash}")" in
+    zsh)  echo "$HOME/.zshrc";;
+    fish) echo "$HOME/.config/fish/config.fish";;
+    *)    echo "$HOME/.bashrc";;
+  esac
+}
+RC="$(detect_rc)"; mkdir -p "$(dirname "$RC")"; touch "$RC"
+if ! grep -q "$MARK_BEGIN" "$RC" 2>/dev/null; then
+  if confirm "Add to $RC: PATH + fastfetch greeting on terminal start?" green; then
+    backup "$RC"
+    if [ "$(basename "$RC")" = "config.fish" ]; then
+      {
+        echo "$MARK_BEGIN"
+        echo 'set -gx PATH $HOME/.local/bin $PATH'
+        echo 'if status is-interactive; command -v fastfetch >/dev/null; and fastfetch; end'
+        echo "$MARK_END"
+      } >>"$RC"
+    else
+      {
+        echo "$MARK_BEGIN"
+        echo 'export PATH="$HOME/.local/bin:$PATH"'
+        echo 'if [ -n "$PS1" ] && command -v fastfetch >/dev/null; then fastfetch; fi'
+        echo "$MARK_END"
+      } >>"$RC"
+    fi
+    ok "added to $RC (between the kit-claude markers; removed by kit-install --uninstall)"
+  fi
+else
+  ok "$RC already configured"
+fi
+
+# 3) fastfetch: config + offer to install it if missing
+FF_DIR="$HOME/.config/fastfetch"; FF_CFG="$FF_DIR/config.jsonc"
+if confirm "Install the fastfetch config with command reminders?" green; then
+  mkdir -p "$FF_DIR"; backup "$FF_CFG"
+  cp "$KIT_ROOT/config/fastfetch-kit.jsonc" "$FF_CFG"; ok "fastfetch config installed"
+  if ! have fastfetch; then
+    warn "fastfetch is not installed."
+    case "$PM" in
+      pacman) run_root "install fastfetch" green pacman -S --needed --noconfirm fastfetch || true;;
+      apt)    run_root "install fastfetch" green apt-get -y install fastfetch || warn "older Ubuntu has no package — install via snap/flatpak or ask Claude";;
+      dnf)    run_root "install fastfetch" green dnf -y install fastfetch || true;;
+      *)      warn "install fastfetch manually for your distro (ask Claude)";;
+    esac
+  fi
+fi
+
+# 4) Claude allowlist — merge if jq is present; otherwise hand off to Claude
+SET="$HOME/.claude/settings.json"; SRC="$KIT_ROOT/config/claude-allowlist.json"
+if confirm "Enable the safe Claude Code allowlist (fewer prompts for harmless commands)?" green; then
+  mkdir -p "$HOME/.claude"
+  if have jq; then
+    backup "$SET"
+    tmp="$(mktemp)"
+    if [ -f "$SET" ]; then
+      jq -s '
+        .[0] as $cur | .[1] as $add |
+        $cur * { permissions: {
+          allow: (((($cur.permissions.allow)//[]) + (($add.permissions.allow)//[])) | unique),
+          deny:  (((($cur.permissions.deny )//[]) + (($add.permissions.deny )//[])) | unique),
+          ask:   (((($cur.permissions.ask  )//[]) + (($add.permissions.ask  )//[])) | unique)
+        }}' "$SET" "$SRC" >"$tmp" && mv "$tmp" "$SET" && ok "allowlist merged into $SET"
+    else
+      jq 'del(._comment)' "$SRC" >"$SET" && ok "created $SET with the safe allowlist"
+    fi
+  else
+    warn "jq not found — Claude will do the merge via the step in BOOTSTRAP.md (config/claude-allowlist.json)"
+  fi
+fi
+
+# 4b) Guard hook: regex shield against destructive actions on ALL AI commands (see conventions/security-root.md)
+HOOK_SRC="$KIT_ROOT/hooks/deny-destructive.sh"
+HOOK_DST="$HOME/.claude/hooks/deny-destructive.sh"
+if confirm "Install the guard hook (cuts destructive AI commands; doesn't touch you in the terminal)?" green; then
+  if have jq && [ -f "$HOOK_SRC" ]; then
+    mkdir -p "$HOME/.claude/hooks"
+    cp "$HOOK_SRC" "$HOOK_DST"; chmod +x "$HOOK_DST"
+    backup "$SET"
+    tmp="$(mktemp)"
+    jq --arg cmd "$HOOK_DST" '
+      .hooks = (.hooks // {}) | .hooks.PreToolUse = (.hooks.PreToolUse // [])
+      | if ([.hooks.PreToolUse[]?.hooks[]?.command] | index($cmd)) then .
+        else .hooks.PreToolUse += [{matcher:"Bash", hooks:[{type:"command", command:$cmd}]}] end
+    ' "$SET" 2>/dev/null >"$tmp" && jq -e . "$tmp" >/dev/null && mv "$tmp" "$SET" \
+      && ok "guard hook installed and registered (restart Claude Code to activate)" \
+      || warn "couldn't register the hook — Claude will do it manually"
+  else
+    warn "needs jq + $HOOK_SRC — Claude will install it via conventions/security-root.md"
+  fi
+fi
+
+# 5) Conventions: folders + laptop map (userspace, root NOT needed)
+if confirm "Set up the structure: ~/projects, ~/kb and the laptop map (where)?" green; then
+  mkdir -p "$HOME/projects" "$HOME/kb" "$HOME/.config/kit-claude"
+  [ -f "$HOME/projects/README.md" ] || printf '# projects\n\nEach side project gets its own folder. Don'\''t pile them together, don'\''t deduplicate.\n' >"$HOME/projects/README.md"
+  [ -f "$HOME/kb/README.md" ] || printf '# kb — knowledge base\n\nMarkdown notes. Append at the bottom with a date, don'\''t erase the old. Search: recall.\n' >"$HOME/kb/README.md"
+  LAY="$HOME/.config/kit-claude/layout.md"
+  [ -f "$LAY" ] || { cp "$KIT_ROOT/config/layout.example.md" "$LAY"; ok "laptop map: $LAY (edit freely, view with the where command)"; }
+  ok "structure ready (~/projects, ~/kb)"
+fi
+
+# 6) Fish — default shell (chsh asks for the password itself; root NOT needed here)
+if confirm "Make fish the default shell (friendlier for beginners)?" green; then
+  if ! have fish; then
+    case "$PM" in
+      pacman) run_root "install fish" green pacman -S --needed --noconfirm fish || true;;
+      apt)    run_root "install fish" green apt-get -y install fish || true;;
+      dnf)    run_root "install fish" green dnf -y install fish || true;;
+      *)      warn "install fish manually for your distro";;
+    esac
+  fi
+  if have fish; then
+    fish_path="$(command -v fish)"
+    grep -qx "$fish_path" /etc/shells 2>/dev/null || run_root "register fish in /etc/shells" green sh -c "echo '$fish_path' >> /etc/shells" || true
+    say "change the shell (will ask for YOUR password — that's normal, not the root assistant's):"
+    run_user "make fish the default" chsh -s "$fish_path" || warn "chsh skipped — you can do it later: chsh -s $(command -v fish)"
+    warn "the fish config with PATH/fastfetch was already added above if you agreed; log back in for it to take effect"
+  fi
+fi
+
+# 7) HTML dossier + Super+\ hotkey
+if confirm "Install the HTML guide (kit-guide) and bind Super+\\?" green; then
+  SHARE="${XDG_DATA_HOME:-$HOME/.local/share}/kit-claude"
+  mkdir -p "$SHARE"; cp "$KIT_ROOT/guide/kit-guide.html" "$SHARE/guide.html"
+  ok "guide installed: $SHARE/guide.html (open: kit-guide)"
+  bash "$HERE/kit-keybind" || warn "you can bind the key later: kit-keybind"
+fi
+
+section "Done"
+ok "commands: update · fix · where · recall · kit-guide · kit-help"
+say "  (after restarting the terminal or 'source $RC')"
+say "check: ${C_BOLD}kit-help${C_0} · ${C_BOLD}where${C_0}"
+say "read about roles and grants: ${C_BOLD}THE-PROTOCOL.md${C_0}"
+logln "kit-install done"

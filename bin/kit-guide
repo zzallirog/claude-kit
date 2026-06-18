@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# kit-guide — open the kit's HTML dossier in a browser. Universal, offline.
+# Bound to Super+\ (see kit-keybind). With no arguments it just opens.
+set -uo pipefail
+HERE="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+
+# where the page lives: first the installed copy, then next to the kit
+CANDIDATES=(
+  "${XDG_DATA_HOME:-$HOME/.local/share}/kit-claude/guide.html"
+  "$(dirname "$HERE")/guide/kit-guide.html"
+  "$HERE/../guide/kit-guide.html"
+)
+PAGE=""
+for p in "${CANDIDATES[@]}"; do [ -f "$p" ] && { PAGE="$p"; break; }; done
+[ -z "$PAGE" ] && { echo "couldn't find guide.html — reinstall (kit-install) or open guide/kit-guide.html manually"; exit 1; }
+
+# open with whatever we can (any platform)
+open_with() { command -v "$1" >/dev/null 2>&1 && { "$@" >/dev/null 2>&1 & disown; return 0; }; return 1; }
+if   [ -n "${BROWSER:-}" ] && open_with "$BROWSER" "file://$PAGE"; then :
+elif open_with xdg-open "file://$PAGE"; then :
+elif open_with open "$PAGE"; then :              # macOS
+elif open_with wslview "$PAGE"; then :           # WSL
+elif open_with sensible-browser "file://$PAGE"; then :
+else echo "couldn't find anything to open a browser with. path to the page:"; echo "  $PAGE"; exit 1; fi
+echo "opened dossier: $PAGE"

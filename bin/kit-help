@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# kit-help — cheatsheet of the kit's commands. Run manually and from fastfetch.
+C_B='\033[36m'; C_G='\033[32m'; C_Y='\033[33m'; C_0='\033[0m'; C_BOLD='\033[1m'
+[ -t 1 ] || { C_B=''; C_G=''; C_Y=''; C_0=''; C_BOLD=''; }
+cat <<EOF
+$(printf '%b' "${C_BOLD}${C_B}─── kit commands ───${C_0}")
+$(printf '%b' "${C_G}update${C_0}")     update the system + security check (1 command)
+$(printf '%b' "${C_G}fix${C_0}")        diagnose and repair: disk, DNS, Wi-Fi, packages, services
+$(printf '%b' "${C_G}fix --auto${C_0}") same, autonomous (fixes safe things itself, asks on risky)
+$(printf '%b' "${C_G}where${C_0}")      laptop map: what lives where
+$(printf '%b' "${C_G}recall X${C_0}")   search notes (~/kb) and system logs
+$(printf '%b' "${C_G}kit-guide${C_0}")  nice dossier in the browser (or Super+\\\\)
+$(printf '%b' "${C_G}kit-help${C_0}")   this cheatsheet
+$(printf '%b' "${C_G}claude${C_0}")     ask the AI assistant anything (in your language)
+
+$(printf '%b' "${C_Y}root — only with your grant + password (detective mode). who does what:${C_0}")
+$(printf '%b' "${C_Y}you decide · Opus thinks · Sonnet acts. details: THE-PROTOCOL.md${C_0}")
+EOF

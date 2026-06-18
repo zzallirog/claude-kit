@@ -1,0 +1,46 @@
+# CLAUDE.md — home navigator (a map, not a dump)
+
+> <one line: whose machine this is and what you do here>
+
+Claude Code reads this file at the start of a session in the home folder. It is a
+**map** — keep it short and true, extend it over time. The full layout is in
+`~/kit-claude/conventions/layout.md`.
+
+## TL;DR (30 seconds)
+- **Who:** <your role / what you do — fill in from onboarding>
+- **How:** <how to talk to you; your experience level; your language>
+- **Where:** projects in `~/projects`, notes in `~/kb`, durable memory in `~/memory`.
+
+## Home map
+    ~/projects/   — side projects, one folder each (each has its own AGENTS.md)
+    ~/kb/         — notes / cheatsheets / "what I fixed" (append, by topic)
+    ~/memory/     — typed memory (profile·feedback·project·reference) + INDEX.md
+    ~/.local/bin/ — kit commands (update·fix·where·recall·kit-help)
+
+## My system
+<!-- bootstrap fills this from probe-system.sh: distro, CPU, GPU + driver, RAM,
+     laptop/desktop, desktop environment -->
+- Distro / package manager:
+- CPU / GPU + driver / RAM:
+- Type: laptop / desktop · Desktop:
+
+## Invariants (do not break)
+1. Irreversible or system-level — only with my explicit "yes", with a backup.
+2. Never report "done" before it is verified. If something failed, say so plainly.
+3. Explain first and show the command — then run it.
+
+## Fast paths
+- **something broke** → `recall --logs "..."` → `fix`
+- **where things live** → `where`
+- **new project** → `~/projects/<name>/` and drop an `AGENTS.md` in it
+
+## What I do most
+<!-- bootstrap fills this from the onboarding survey -->
+
+## Installed skills
+<!-- bootstrap fills in which skills were installed -->
+
+## What lives outside (not in this file)
+- Working habits → `~/kit-claude/CONVENTIONS.md`
+- Layout and memory → `~/kit-claude/conventions/layout.md`
+- Roles and root → `~/kit-claude/THE-PROTOCOL.md`

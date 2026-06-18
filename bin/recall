@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# recall — unified search: knowledge base (~/kb) + system logs (journalctl).
+# "what I know" and "what happened" in one habit (see CONVENTIONS.md §5).
+#
+#   recall "query"          both notes and logs
+#   recall --notes "query"  only ~/kb
+#   recall --logs "query"   only the system journal (last boot)
+#   recall --proj "query"   only ~/projects
+set -uo pipefail
+KB="$HOME/kb"; PROJ="$HOME/projects"
+mode="all"
+case "${1:-}" in
+  --notes) mode="notes"; shift;;
+  --logs)  mode="logs";  shift;;
+  --proj)  mode="proj";  shift;;
+  -h|--help) sed -n '2,11p' "$0"; exit 0;;
+esac
+q="${*:-}"
+[ -z "$q" ] && { echo "search for what? example: recall \"how I fixed wifi\""; exit 1; }
+
+# grep engine: ripgrep if available (faster, smarter), otherwise grep -r
+search_dir() {
+  local dir="$1"
+  [ -d "$dir" ] || { echo "  (no folder $dir)"; return; }
+  if command -v rg >/dev/null 2>&1; then
+    rg -i --color=never -n --max-columns 200 "$q" "$dir" 2>/dev/null | head -40 || echo "  nothing"
+  else
+    grep -rin --color=never "$q" "$dir" 2>/dev/null | head -40 || echo "  nothing"
+  fi
+}
+
+if [ "$mode" = notes ] || [ "$mode" = all ]; then
+  echo "── knowledge base (~/kb) ──"; search_dir "$KB"; echo
+fi
+if [ "$mode" = proj ] || [ "$mode" = all ]; then
+  echo "── projects (~/projects) ──"; search_dir "$PROJ"; echo
+fi
+if [ "$mode" = logs ] || [ "$mode" = all ]; then
+  echo "── system journal (this boot) ──"
+  if command -v journalctl >/dev/null 2>&1; then
+    journalctl -b --no-pager 2>/dev/null | grep -i --color=never "$q" | tail -30 || echo "  nothing"
+  else
+    echo "  journalctl unavailable (not systemd?)"
+  fi
+fi
