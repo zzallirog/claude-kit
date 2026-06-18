@@ -39,6 +39,8 @@ The layout is [agent-atlas](https://github.com/zzallirog/agent-atlas) folded dow
 single machine; this kit is one working implementation of it.
 
 ---
-🤝 The same handshake that runs through the whole kit: don't trust the claim, check
-the trace — run `git hash-object conventions/layout.md` on your side and on mine,
-same digest, same map.
+🤝 **Handshake** — the kit's own rule, turned on itself: *trust the trace, not the
+claim.* Don't take this README's word that your copy is whole. Clone it and run
+`git rev-parse HEAD` — it must equal the commit hash GitHub shows at the top of this
+page. A repo can't print its own commit hash inside itself, so the anchor lives
+where you can't fake it: the commit, not the copy.

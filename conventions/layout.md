@@ -112,7 +112,6 @@ free. The bootstrap lays the skeleton down (the "layout" step); it grows one mod
 at a time, each when it has earned its place.
 
 ---
-🤝 **Handshake.** A file can't carry its own hash — print it and the hash changes.
-So we don't trust the claim, we check the trace: run
-`git hash-object conventions/layout.md` on your side and on mine — same digest,
-same map. (Trust the trace, not the claim — the same trick the whole kit runs on.)
+🤝 **Handshake** — trust the trace, not the claim. The kit is pinned to one commit;
+run `git rev-parse HEAD` and it must match the commit GitHub shows for the repo. (You
+can't fake a commit hash from inside the commit — the same trick the whole kit runs on.)
