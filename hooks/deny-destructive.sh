@@ -14,10 +14,9 @@ cmd="$(jq -r '.tool_input.command // empty' 2>/dev/null)"
 [ -z "$cmd" ] && exit 0
 
 # --- PCRE destructive filters (label|regex). grep -Pi, backref support. ---
-# System roots (for rm/chmod/chown). /home,/root,/var are NOT included on purpose —
+# System roots (for rm/chmod/chown): /home,/root,/var are NOT cut on purpose —
 # deep edits under them are legitimate; we only cut the whole root and the system.
-SYS='/|/\*|/etc|/usr|/bin|/sbin|/boot|/lib|/lib64|/sys|/proc|/dev|/root'
-
+# Each pattern spells out its own root list inline (see rm/chmod/chown below).
 # Format: "label@@regex" (@@ — separator; it appears in neither labels nor regexes).
 patterns=(
   "classic fork bomb@@:\s*\(\s*\)\s*\{.*:\s*\|\s*:.*&.*\}\s*;\s*:"

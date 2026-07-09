@@ -1,0 +1,17 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: shellcheck (error severity)
+        # bin/ scripts are extensionless bash; hooks/kb are *.sh; probe is standalone.
+        # Gate at error severity — real breakage (syntax, quoting, undefined use),
+        # not style. Warnings stay advisory.
+        run: shellcheck -S error bin/* hooks/*.sh kb/*.sh probe-system.sh

@@ -1,5 +1,7 @@
 # claude-kit
 
+[![ci](https://github.com/zzallirog/claude-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/zzallirog/claude-kit/actions/workflows/ci.yml)
+
 > A ready-to-run **Claude Code starter kit** — roles & safety, skills, commands, and a
 > clean filesystem/memory layout. What took one person three months, packaged so a
 > newcomer gets going in five minutes.
@@ -124,8 +126,9 @@ guide/            kit-guide.html (the dossier, Super+\)
   The structure generalizes; the intake questions and skill picks are that example.
 - **Designed for Opus.** It runs on Sonnet — a bit more simply — and Claude says so at
   start if Opus isn't on.
-- **No CI yet.** The guard hook and the grant path are the load-bearing safety; they're
-  reasoned in the docs, not gated by an automated suite.
+- **CI is a shell lint, not a behavior suite.** Every shell file is shellchecked at
+  error severity on push; the guard hook and the grant path — the load-bearing safety —
+  are reasoned in the docs, not yet exercised by an end-to-end test.
 
 ## Lineage
 
