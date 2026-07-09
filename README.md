@@ -48,6 +48,25 @@ lays down a clean layout. Beginner-facing walkthrough for the human: **[START-HE
 - **Safety by construction** — root is never standing: every system action passes a four-beat **grant ritual** (request → your yes → *your* password → auto-revoke). A guard hook (`hooks/deny-destructive.sh`) cuts destructive commands from *any* AI action, not just the kit's.
 - **A clean layout** — a typed filesystem + memory kept [clean for Claude](conventions/layout.md): a map, not a dump — load only what's needed. The concept is [agent-atlas](https://github.com/zzallirog/agent-atlas) folded down to a single machine.
 
+## The guide
+
+`kit-guide` (<kbd>Super</kbd>+<kbd>\\</kbd>) opens a browser dossier — *Codex of the
+Machine* — that lays the whole kit out as an illuminated manual: who's who, what's free,
+what's guarded, every command one click from your clipboard. It's an admin page at heart —
+but a designed one.
+
+![The Codex frontispiece — "KIT." set in Playfair Display on an ink-and-gold parchment, the eight-chapter index below it](docs/shots/guide/codex-hero.png)
+
+<table>
+<tr>
+<td width="50%"><img src="docs/shots/guide/codex-cast.png" alt="Three role cards — the Owner, Opus, Sonnet — each with an alchemical glyph and a colored top edge; below, the two realms, home in green and system in red"></td>
+<td width="50%"><img src="docs/shots/guide/codex-charter.png" alt="The grant rite rendered as a gold terminal scene, with the work and root charters and their inline code chips"></td>
+</tr>
+</table>
+
+*The cast and the two realms · the grant rite and the charters. The same substance as
+`THE-PROTOCOL.md` and `ROOT-POLICY.md` — built to be read for pleasure, not just reference.*
+
 ## The protocol (who's in charge)
 
 **You decide · Opus thinks · Sonnet does — and the key is yours.** Home (`~/`) is free;
